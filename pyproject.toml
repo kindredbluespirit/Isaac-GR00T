@@ -51,6 +51,7 @@ dependencies = [
     "tensorrt-cu13-libs>=10.15.1.29; platform_machine == 'aarch64'",
     "av==12.3.0",
     "numpydantic==1.6.7",
+    "pydantic==2.10.6",
 ]
 
 [project.optional-dependencies]

@@ -13,8 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import importlib.util
+import os
 import random
 import re
+import types
 from typing import Any, Dict, List, Optional
 
 import numpy as np
@@ -45,19 +48,32 @@ def formalize_language(language: str) -> str:
 
 
 def build_eagle_processor(eagle_path: str) -> ProcessorMixin:
-    import importlib
-    import sys
+    import importlib.util
+    import types
 
-    sys.path.insert(0, eagle_path)
-    Eagle2_5_VLConfig = importlib.import_module("configuration_eagle2_5_vl").Eagle2_5_VLConfig
-    Eagle2_5_VLProcessor = importlib.import_module("processing_eagle2_5_vl").Eagle2_5_VLProcessor
-    sys.path.pop(0)
+    def _load_eagle_module(name, path):
+        spec = importlib.util.spec_from_file_location(
+            name, os.path.join(eagle_path, path),
+            submodule_search_locations=[eagle_path],
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    radio_model = _load_eagle_module("gr00t.model.backbone.eagle2_hg_model.radio_model", "radio_model.py")
+    radio_model.RADIOConfig.__module__ = "gr00t.model.backbone.eagle2_hg_model.radio_model"
+    radio_model.RADIOModel.__module__ = "gr00t.model.backbone.eagle2_hg_model.radio_model"
+
+    cfg_mod = _load_eagle_module("gr00t.model.backbone.eagle2_hg_model.configuration_eagle2_5_vl", "configuration_eagle2_5_vl.py")
+    cfg_mod.RADIOConfig = radio_model.RADIOConfig
+    cfg_mod.RADIOModel = radio_model.RADIOModel
+
+    proc_mod = _load_eagle_module("gr00t.model.backbone.eagle2_hg_model.processing_eagle2_5_vl", "processing_eagle2_5_vl.py")
 
     from transformers import AutoConfig
+    AutoConfig.register("eagle_2_5_vl", cfg_mod.Eagle2_5_VLConfig)
 
-    AutoConfig.register("eagle_2_5_vl", Eagle2_5_VLConfig)
-
-    eagle_processor = Eagle2_5_VLProcessor.from_pretrained(
+    eagle_processor = proc_mod.Eagle2_5_VLProcessor.from_pretrained(
         eagle_path, use_fast=True
     )
     eagle_processor.tokenizer.padding_side = "left"

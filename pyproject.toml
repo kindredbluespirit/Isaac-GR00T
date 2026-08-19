@@ -75,7 +75,7 @@ where = ["."]
 include = ["gr00t*"]
 
 [tool.setuptools.package-data]
-gr00t = ["**/*.json", "**/*.model"]
+gr00t = ["**/*.json", "**/*.txt", "**/*.model", "**/*.tiktoken"]
 
 [tool.uv]
 required-environments = [

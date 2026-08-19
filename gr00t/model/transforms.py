@@ -76,7 +76,7 @@ def build_eagle_processor(eagle_path: str) -> ProcessorMixin:
     AutoConfig.register("eagle_2_5_vl", cfg_mod.Eagle2_5_VLConfig)
 
     eagle_processor = proc_mod.Eagle2_5_VLProcessor.from_pretrained(
-        eagle_path, use_fast=True
+        eagle_path, use_fast=True, trust_remote_code=True
     )
     eagle_processor.tokenizer.padding_side = "left"
     return eagle_processor

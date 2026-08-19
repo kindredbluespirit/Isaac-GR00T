@@ -17,6 +17,7 @@ import importlib.util
 import os
 import random
 import re
+import sys
 import types
 from typing import Any, Dict, List, Optional
 
@@ -57,6 +58,7 @@ def build_eagle_processor(eagle_path: str) -> ProcessorMixin:
             submodule_search_locations=[eagle_path],
         )
         module = importlib.util.module_from_spec(spec)
+        sys.modules[name] = module
         spec.loader.exec_module(module)
         return module
 

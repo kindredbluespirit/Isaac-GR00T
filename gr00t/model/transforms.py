@@ -365,7 +365,7 @@ class GR00TTransform(InvertibleModalityTransform):
                 for key in action_and_mask_keys
             ), f"Shape mismatch: {[(key, transformed_data[key].shape) for key in action_and_mask_keys]}"
 
-        return transformed_data
+        return collate([transformed_data], self.eagle_processor)
 
     def apply_batch(self, data: dict, batch_size: int) -> dict:
         # Split on batch dimension.

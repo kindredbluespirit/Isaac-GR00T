@@ -45,6 +45,9 @@ def formalize_language(language: str) -> str:
 
 
 def build_eagle_processor(eagle_path: str) -> ProcessorMixin:
+    from transformers import AutoConfig
+
+    AutoConfig.from_pretrained(eagle_path, trust_remote_code=True)
     eagle_processor = AutoProcessor.from_pretrained(
         eagle_path, trust_remote_code=True, use_fast=True
     )
@@ -114,7 +117,7 @@ class GR00TTransform(InvertibleModalityTransform):
     # Private attributes to keep track of shapes/dimensions across apply/unapply
     _language_key: Optional[list[str]] = PrivateAttr(default=None)
 
-    eagle_processor: ProcessorMixin = Field(default=build_eagle_processor(DEFAULT_EAGLE_PATH))
+    eagle_processor: ProcessorMixin = Field(default_factory=lambda: build_eagle_processor(DEFAULT_EAGLE_PATH))
 
     # XEmbDiT arguments
     default_instruction: str = Field(default="Perform the default behavior.")

@@ -45,11 +45,20 @@ def formalize_language(language: str) -> str:
 
 
 def build_eagle_processor(eagle_path: str) -> ProcessorMixin:
+    import importlib
+    import sys
+
+    sys.path.insert(0, eagle_path)
+    Eagle2_5_VLConfig = importlib.import_module("configuration_eagle2_5_vl").Eagle2_5_VLConfig
+    Eagle2_5_VLProcessor = importlib.import_module("processing_eagle2_5_vl").Eagle2_5_VLProcessor
+    sys.path.pop(0)
+
     from transformers import AutoConfig
 
-    AutoConfig.from_pretrained(eagle_path, trust_remote_code=True)
-    eagle_processor = AutoProcessor.from_pretrained(
-        eagle_path, trust_remote_code=True, use_fast=True
+    AutoConfig.register("eagle_2_5_vl", Eagle2_5_VLConfig)
+
+    eagle_processor = Eagle2_5_VLProcessor.from_pretrained(
+        eagle_path, use_fast=True
     )
     eagle_processor.tokenizer.padding_side = "left"
     return eagle_processor
